@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>HAV Map Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#F5F2ED;
+    --card:#FFFFFF;
+    --card-2:#F7F4EF;
+    --line:#EAE4DB;
+    --ink:#231F1C;
+    --ink-soft:#8A8177;
+    --accent:#ED0677;
+    --accent-soft:#FCE4EE;
+    --mint:#E1F5E9;
+    --mint-ink:#1E8E4F;
+    --blue-tint:#E6F0FC;
+    --blue-ink:#2563AF;
+    --purple-tint:#F1E9FB;
+    --purple-ink:#7A3FC4;
+    --ok:#4C9A2A;
+    --warn:#D98F1E;
+    --risk:#E14B3F;
+    --radius:14px;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:'Poppins',system-ui,sans-serif;background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased;}
+  .app{display:flex;min-height:100vh;}
+
+  .sidebar{width:212px;flex-shrink:0;background:#fff;padding:26px 16px;display:flex;flex-direction:column;gap:4px;border-right:1px solid var(--line);}
+  .brand{font-weight:800;font-size:16px;letter-spacing:-.01em;display:flex;align-items:center;gap:7px;margin-bottom:2px;color:var(--accent);}
+  .brand .dot{width:7px;height:7px;border-radius:50%;background:var(--accent);}
+  .brand-sub{font-size:10.5px;color:var(--ink-soft);margin:0 0 22px 15px;text-transform:uppercase;letter-spacing:.04em;}
+  .navitem{padding:10px 12px;border-radius:9px;font-size:13px;font-weight:600;color:#8A8177;cursor:pointer;transition:.15s;}
+  .navitem:hover{background:var(--card-2);color:var(--ink);}
+  .navitem.active{background:var(--accent-soft);color:var(--accent);}
+  .navitem small{display:block;font-weight:400;font-size:10px;color:#B4AB9F;margin-top:1px;}
+  .navitem.active small{color:#D9679E;}
+  .sidebar-foot{margin-top:auto;font-size:10px;color:#B4AB9F;line-height:1.5;padding-top:14px;border-top:1px solid var(--line);}
+
+  .main{flex:1;padding:26px 36px;max-width:1320px;}
+  .topbar{display:flex;justify-content:flex-end;margin-bottom:18px;}
+  .avatar-od{width:36px;height:36px;border-radius:50%;background:var(--accent);color:#fff;font-weight:700;font-size:12.5px;display:flex;align-items:center;justify-content:center;}
+  .pagehead{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:20px;flex-wrap:wrap;gap:12px;}
+  .pagehead h1{font-size:21px;margin:0 0 4px;font-weight:800;color:var(--ink);}
+  .pagehead p{margin:0;color:var(--ink-soft);font-size:12.5px;}
+  .eyebrow{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.08em;color:var(--accent);font-weight:700;text-transform:uppercase;margin-bottom:5px;display:block;}
+
+  .gate{max-width:380px;margin:80px auto;text-align:center;background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:34px 30px;box-shadow:0 1px 3px rgba(0,0,0,.04);}
+  .gate h2{font-size:15px;margin:14px 0 6px;color:var(--ink);}
+  .gate p{font-size:12px;color:var(--ink-soft);margin:0 0 18px;line-height:1.6;}
+  .gate input{width:100%;padding:10px 12px;border:1.5px solid var(--line);border-radius:8px;background:var(--card-2);color:var(--ink);font-family:'JetBrains Mono',monospace;font-size:14px;letter-spacing:.1em;text-align:center;margin-bottom:10px;}
+  .gate-icon{width:44px;height:44px;border-radius:50%;background:var(--accent-soft);color:var(--accent);display:flex;align-items:center;justify-content:center;margin:0 auto;font-size:19px;font-weight:700;}
+  .gate .err{color:var(--risk);font-size:11px;margin-bottom:8px;min-height:14px;}
+
+  .btn{border:none;border-radius:9px;padding:9px 15px;font-family:inherit;font-weight:600;font-size:12.5px;cursor:pointer;transition:.15s;}
+  .btn-primary{background:var(--accent);color:#fff;}
+  .btn-primary:hover{background:#C60564;}
+  .btn-block{width:100%;}
+
+  .filters{display:flex;gap:10px;margin-bottom:18px;flex-wrap:wrap;align-items:center;}
+  select{padding:8px 13px;border-radius:20px;border:1.5px solid var(--line);font-family:inherit;font-size:12px;background:var(--card);color:var(--ink);}
+  .filters .count{margin-left:auto;font-size:11px;color:var(--ink-soft);background:var(--card);border:1px solid var(--line);padding:6px 12px;border-radius:20px;}
+
+  .grid-wrap{display:grid;grid-template-columns:1fr 280px;gap:20px;align-items:start;}
+  .hav-grid{display:grid;grid-template-columns:1fr 1fr 1fr;grid-template-rows:1fr 1fr 1fr;gap:10px;}
+  .axis-y{writing-mode:vertical-rl;transform:rotate(180deg);text-align:center;font-size:10.5px;font-weight:700;color:var(--ink-soft);letter-spacing:.05em;text-transform:uppercase;padding:8px 2px;}
+  .axis-x{text-align:center;font-size:10.5px;font-weight:700;color:var(--ink-soft);letter-spacing:.05em;text-transform:uppercase;padding-top:6px;}
+  .box{background:var(--box-tint,#fff);border:1px solid var(--line);border-radius:12px;min-height:158px;padding:12px;position:relative;display:flex;flex-direction:column;gap:7px;}
+  .box-label{font-size:11.5px;font-weight:700;display:flex;justify-content:space-between;align-items:center;color:var(--ink);}
+  .box-label .n{font-size:10px;font-weight:700;color:var(--box-color,var(--ink-soft));}
+  .box-chips{display:flex;flex-wrap:wrap;gap:6px;}
+  .chip{width:28px;height:28px;border-radius:50%;font-size:10px;font-weight:700;color:#fff;background:var(--ink-soft);display:flex;align-items:center;justify-content:center;cursor:pointer;border:2px solid #fff;box-shadow:0 0 0 1px rgba(0,0,0,.05);transition:.12s;flex-shrink:0;}
+  .chip:hover{transform:scale(1.12);}
+
+  .side-card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:16px;margin-bottom:16px;}
+  .side-card h3{font-size:12px;margin:0 0 3px;font-weight:700;letter-spacing:.01em;color:var(--ink);}
+  .side-card p.hint{font-size:10.5px;color:var(--ink-soft);margin:0 0 12px;}
+  .breakdown-row{display:grid;grid-template-columns:14px 1fr 30px 34px;align-items:center;gap:8px;padding:6px 0;font-size:11px;}
+  .breakdown-row .sw{width:8px;height:8px;border-radius:2px;}
+  .breakdown-row .name{color:var(--ink);}
+  .breakdown-row .n{text-align:right;color:var(--ink-soft);}
+  .breakdown-row .pct{text-align:right;font-weight:700;}
+  .bar-track{grid-column:1 / -1;height:4px;background:var(--card-2);border-radius:2px;margin-bottom:4px;overflow:hidden;}
+  .bar-fill{height:100%;border-radius:2px;}
+
+  .pending-item{display:flex;align-items:center;gap:9px;padding:7px 0;border-bottom:1px solid var(--line);}
+  .pending-item:last-child{border-bottom:none;}
+  .avatar-sm{width:26px;height:26px;border-radius:50%;background:var(--card-2);color:var(--ink-soft);font-size:9.5px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .pending-item .meta{flex:1;min-width:0;}
+  .pending-item .meta .n{font-size:11.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--ink);}
+  .pending-item .meta .d{font-size:10px;color:var(--ink-soft);}
+
+  .overlay{position:fixed;inset:0;background:rgba(35,31,28,.35);display:none;z-index:40;}
+  .overlay.show{display:block;}
+  .drawer{position:fixed;top:0;right:-400px;width:380px;height:100%;background:var(--card);z-index:50;box-shadow:-8px 0 30px rgba(0,0,0,.12);transition:right .22s ease;overflow-y:auto;border-left:1px solid var(--line);}
+  .drawer.show{right:0;}
+  .drawer-head{background:var(--card-2);color:var(--ink);padding:24px 22px;position:relative;border-bottom:1px solid var(--line);}
+  .drawer-close{position:absolute;top:16px;right:16px;background:rgba(0,0,0,.06);border:none;color:var(--ink);width:26px;height:26px;border-radius:50%;cursor:pointer;font-size:13px;}
+  .drawer-avatar{width:48px;height:48px;border-radius:12px;background:var(--accent);color:#fff;font-weight:700;font-size:16px;display:flex;align-items:center;justify-content:center;margin-bottom:12px;}
+  .drawer-head h2{margin:0 0 3px;font-size:16px;}
+  .drawer-head .sub{font-size:11.5px;color:var(--ink-soft);}
+  .drawer-body{padding:20px 22px;}
+  .dstat{display:flex;justify-content:space-between;padding:11px 0;border-bottom:1px solid var(--line);gap:10px;}
+  .dstat:last-child{border-bottom:none;}
+  .dstat .lbl{font-size:11.5px;color:var(--ink-soft);}
+  .dstat .val{font-size:12.5px;font-weight:700;text-align:right;}
+  .box-banner{margin-top:16px;padding:15px;border-radius:12px;background:var(--accent-soft);border-left:3px solid var(--accent);}
+  .box-banner .eyebrow{margin-bottom:6px;}
+  .box-banner h4{margin:0 0 4px;font-size:14px;color:var(--accent);}
+  .box-banner p{margin:0;font-size:11px;color:var(--ink-soft);line-height:1.5;}
+  .pending-banner{margin-top:16px;padding:15px;border-radius:12px;background:#FCF3E0;font-size:11.5px;color:#8A6410;line-height:1.5;border-left:3px solid var(--warn);}
+
+  table{width:100%;border-collapse:collapse;font-size:12px;}
+  th{text-align:left;color:var(--ink-soft);font-weight:600;font-size:10px;text-transform:uppercase;letter-spacing:.03em;padding:8px 10px;border-bottom:2px solid var(--line);}
+  td{padding:9px 10px;border-bottom:1px solid var(--line);color:var(--ink);}
+  .empty-state{text-align:center;padding:46px 20px;color:var(--ink-soft);font-size:12.5px;}
+  .badge{padding:2px 9px;border-radius:20px;font-size:10px;font-weight:700;}
+  .badge-ok{background:var(--mint);color:var(--mint-ink);}
+
+  /* Breakdown page */
+  .bd-picker{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:18px 22px;margin-bottom:20px;display:flex;gap:26px;align-items:flex-end;flex-wrap:wrap;}
+  .bd-picker .field{display:flex;flex-direction:column;gap:7px;flex:1;min-width:220px;}
+  .bd-picker .field label{font-size:10.5px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.04em;font-weight:700;}
+  .bd-picker select{width:100%;border-radius:9px;}
+  .bd-compare{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+  .bd-compare.single{grid-template-columns:minmax(0,560px);justify-content:center;}
+  .profile-card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:24px;}
+  .profile-top{display:flex;gap:12px;align-items:center;margin-bottom:18px;}
+  .profile-avatar{width:48px;height:48px;border-radius:12px;background:var(--accent);color:#fff;font-weight:700;font-size:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .profile-name{font-size:16px;font-weight:700;color:var(--ink);}
+  .profile-sub{font-size:12px;color:var(--ink-soft);}
+  .stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:18px;}
+  .stat-box{background:var(--card-2);border-radius:10px;padding:12px 14px;border:1px solid transparent;transition:.15s;}
+  .stat-box.win{background:var(--mint);border-color:var(--ok);}
+  .stat-box .lbl{font-size:10px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.04em;}
+  .stat-box .val{font-size:16px;font-weight:700;color:var(--ink);margin-top:3px;display:flex;align-items:center;gap:6px;}
+  .stat-box.win .val{color:var(--ok);}
+  .stat-box .win-tick{font-size:11px;}
+  .tag-list{display:flex;flex-direction:column;gap:6px;margin-bottom:14px;}
+  .tag-list h5{font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-soft);margin:0 0 8px;}
+  .tag-row{display:flex;justify-content:space-between;background:var(--card-2);padding:8px 10px;border-radius:8px;font-size:11.5px;}
+  .tag-row.pos{border-left:3px solid var(--ok);}
+  .tag-row.neg{border-left:3px solid var(--warn);}
+  .empty-select{padding:60px 20px;text-align:center;color:var(--ink-soft);font-size:12.5px;background:var(--card);border:1px dashed var(--line);border-radius:var(--radius);}
+
+  ::-webkit-scrollbar{width:8px;} ::-webkit-scrollbar-thumb{background:#ddd6cc;border-radius:4px;}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="sidebar">
+    <div class="brand">HAV Map</div>
+    <div class="brand-sub">OD Hub</div>
+    <div class="navitem active" data-view="dashboard">Dashboard<small>Performance × Competency</small></div>
+    <div class="navitem" data-view="breakdown">Breakdown<small>Detail &amp; compare karyawan</small></div>
+    <div class="navitem" data-view="log">Log Aktivitas<small>Belum dinilai + audit trail</small></div>
+    <div class="sidebar-foot">Prototype — data mock.<br>Form assessment ada di file terpisah (hav-map-form.html).</div>
+  </div>
+  <div class="main">
+    <div class="topbar"><div class="avatar-od">OD</div></div>
+    <div id="main-content"></div>
+  </div>
+</div>
+<div class="overlay" id="overlay"></div>
+<div class="drawer" id="drawer"></div>
+
+<script>
+/* ============ MOCK DATA ============ */
+const DEPTS = ["Operations","Culture","HR","Finance","IT"];
+const DEPT_TO_DIVISI = {
+  "Operations":"Operations & Logistics",
+  "Culture":"Culture & People",
+  "HR":"Corporate Services",
+  "Finance":"Corporate Services",
+  "IT":"Technology"
+};
+const DIVISIONS = ["Operations & Logistics","Culture & People","Corporate Services","Technology"];
+function deptsForDivisi(div){ return div ? DEPTS.filter(d=>DEPT_TO_DIVISI[d]===div) : DEPTS; }
+const SUPERVISORS = [
+  {id:"S1", name:"Dimas Prakoso", dept:"Operations"},
+  {id:"S2", name:"Rina Wulandari", dept:"Culture"},
+  {id:"S3", name:"Yusuf Hakim", dept:"HR"},
+  {id:"S4", name:"Melati Anggraini", dept:"Finance"},
+  {id:"S5", name:"Bagas Setiawan", dept:"IT"},
+];
+const NAMES = ["Ahmad Fauzi","Siti Nurhaliza","Bayu Segara","Putri Ramadhani","Reza Pratama","Ayu Lestari",
+  "Fajar Nugraha","Dewi Kartika","Andika Wibowo","Nia Kurnia","Rizky Aditya","Wulan Sari",
+  "Doni Saputra","Intan Permata","Agung Nugroho","Sari Indah","Teguh Wibisono","Lina Marlina",
+  "Hendra Gunawan","Fitri Handayani","Eko Prasetyo","Vina Anastasia","Yoga Pradana","Ratna Sari"];
+
+const COMPETENCY_QUESTIONS = [
+  {key:"leadership", title:"Kepemimpinan"},
+  {key:"problem", title:"Pemecahan Masalah"},
+  {key:"communication", title:"Komunikasi"},
+  {key:"teamwork", title:"Kerja Sama Tim"},
+  {key:"adaptability", title:"Adaptabilitas"},
+];
+
+function randDetail(){
+  let d = {};
+  COMPETENCY_QUESTIONS.forEach(q=> d[q.key] = Math.round(1+Math.random()*4));
+  return d;
+}
+function avgDetail(d){
+  const vals = Object.values(d);
+  return +(vals.reduce((a,b)=>a+b,0)/vals.length).toFixed(1);
+}
+
+function seedEmployees(){
+  let out = [...SUPERVISORS.map(s=>({
+    id:s.id, name:s.name, dept:s.dept, divisi:DEPT_TO_DIVISI[s.dept], position:"Supervisor/Manager", supervisorId:null,
+    tenureYears: +(Math.random()*6+2).toFixed(1), iq: Math.round(100+Math.random()*25),
+    performance: +(2.8+Math.random()*2.2).toFixed(1),
+    competency:null, competencyDetail:null, assessedBy:null, assessedAt:null
+  }))];
+  NAMES.forEach((n,i)=>{
+    const sup = SUPERVISORS[i % SUPERVISORS.length];
+    const hasScore = Math.random() < 0.55;
+    const detail = hasScore ? randDetail() : null;
+    out.push({
+      id:"E"+(i+1), name:n, dept:sup.dept, divisi:DEPT_TO_DIVISI[sup.dept], position:["Staff","Senior Staff","Officer","Coordinator"][i%4],
+      supervisorId:sup.id, tenureYears: +(Math.random()*7+0.3).toFixed(1), iq: Math.round(90+Math.random()*35),
+      performance: +(1.5+Math.random()*3.5).toFixed(1),
+      competency: detail ? avgDetail(detail) : null,
+      competencyDetail: detail,
+      assessedBy: hasScore ? sup.name : null, assessedAt: hasScore ? mockDate() : null
+    });
+  });
+  return out;
+}
+function mockDate(){ const d = new Date(2026, 6, Math.ceil(Math.random()*30)); return d.toLocaleDateString("id-ID",{day:"2-digit",month:"short",year:"numeric"}); }
+
+/* ============ STATE ============ */
+let EMPLOYEES = [];
+let GATE_OK = false;
+let currentView = "dashboard";
+let filterDept = "";
+let filterDivisi = "";
+let bdPrimary = "";
+let bdCompare = "";
+const STORAGE_KEY_EMP = "hav-employees-v1";
+const STORAGE_KEY_LOG = "hav-assessment-log-v1";
+
+async function initData(){
+  try{
+    const r = await window.storage.get(STORAGE_KEY_EMP, true);
+    EMPLOYEES = JSON.parse(r.value);
+  }catch(e){
+    EMPLOYEES = seedEmployees();
+    try{ await window.storage.set(STORAGE_KEY_EMP, JSON.stringify(EMPLOYEES), true); }catch(e2){}
+  }
+  render();
+}
+async function getLog(){ try{ const r = await window.storage.get(STORAGE_KEY_LOG, true); return JSON.parse(r.value); }catch(e){ return []; } }
+
+/* ============ HELPERS ============ */
+function initials(name){ return name.split(" ").map(w=>w[0]).slice(0,2).join("").toUpperCase(); }
+function tier(score){ if(score >= 3.68) return "high"; if(score >= 2.34) return "mid"; return "low"; }
+const BOX_INFO = {
+  "low-low":{name:"Risk", color:"#E14B3F", tint:"#FCEBE9", desc:"Performance dan kompetensi sama-sama rendah. Perlu rencana perbaikan (PIP) atau evaluasi kelanjutan."},
+  "mid-low":{name:"Average Performer", color:"#E14B3F", tint:"#FCEBE9", desc:"Performance cukup namun kompetensi masih rendah. Fokus coaching pada kompetensi."},
+  "high-low":{name:"Trusted Professional", color:"#D98F1E", tint:"#FCF3E0", desc:"Performance tinggi meski kompetensi belum optimal. Pastikan hasil tetap konsisten."},
+  "low-mid":{name:"Inconsistent Player", color:"#E14B3F", tint:"#FCEBE9", desc:"Kompetensi cukup baik tapi performance belum stabil. Cek hambatan eksekusi."},
+  "mid-mid":{name:"Core Employee", color:"#D98F1E", tint:"#FCF3E0", desc:"Performance dan kompetensi seimbang di tengah. Tulang punggung tim, jaga engagement-nya."},
+  "high-mid":{name:"High Performer", color:"#4C9A2A", tint:"#E9F5E1", desc:"Performance kuat, kompetensi berkembang baik. Kandidat kuat untuk tanggung jawab lebih besar."},
+  "low-high":{name:"Enigma", color:"#D98F1E", tint:"#FCF3E0", desc:"Kompetensi tinggi tapi performance belum terlihat. Cari akar masalah — motivasi, role fit, atau hambatan lain."},
+  "mid-high":{name:"Growth Employee", color:"#4C9A2A", tint:"#E9F5E1", desc:"Kompetensi tinggi, performance sedang. Berpotensi besar — beri exposure dan tantangan baru."},
+  "high-high":{name:"Future Leader", color:"#4C9A2A", tint:"#E9F5E1", desc:"Performance dan kompetensi tinggi. Prioritas utama untuk suksesi dan pengembangan kepemimpinan."},
+};
+const BOX_ORDER = ["high-high","high-mid","mid-high","mid-mid","high-low","low-high","mid-low","low-mid","low-low"];
+function boxKey(perf, comp){ return tier(perf)+"-"+tier(comp); }
+function tierLabel(t){ return t==="high"?"Tinggi":t==="mid"?"Sedang":"Rendah"; }
+function supervisorName(id){ const s = SUPERVISORS.find(x=>x.id===id); return s ? s.name : "-"; }
+
+/* ============ RENDER ROOT ============ */
+function render(){
+  const main = document.getElementById("main-content");
+  if(currentView==="dashboard" && !GATE_OK){ main.innerHTML = gateHTML(); bindGate(); return; }
+  if(currentView==="dashboard") main.innerHTML = dashboardHTML();
+  if(currentView==="breakdown") main.innerHTML = breakdownHTML();
+  if(currentView==="log"){ main.innerHTML = logHTML(); loadLog(); }
+  bindGlobal();
+  if(currentView==="dashboard" && GATE_OK) bindDashboard();
+  if(currentView==="breakdown") bindBreakdown();
+  if(currentView==="log") bindLog();
+}
+
+/* ============ GATE ============ */
+function gateHTML(){
+  return `
+    <div class="gate">
+      <div class="gate-icon">&#128274;</div>
+      <h2>Akses Terbatas</h2>
+      <p>Dashboard ini berisi data performance, kompetensi, dan IQ karyawan yang bersifat rahasia. Hanya untuk tim OD / People &amp; Culture.</p>
+      <div class="err" id="gate-err"></div>
+      <input type="text" id="gate-code" placeholder="Masukkan kode akses" maxlength="20">
+      <button class="btn btn-primary btn-block" id="gate-submit">Masuk Dashboard</button>
+      <p style="margin-top:14px;font-size:10px;color:#B4AB9F;">Prototype — kode: <b>OD2026</b>. Di implementasi asli, gerbang ini harus dicek di server (Cloudflare Worker), bukan di browser.</p>
+    </div>`;
+}
+function bindGate(){
+  document.getElementById("gate-submit").onclick = ()=>{
+    const v = document.getElementById("gate-code").value.trim();
+    if(v === "OD2026"){ GATE_OK = true; render(); }
+    else document.getElementById("gate-err").textContent = "Kode akses salah. Coba lagi.";
+  };
+}
+
+/* ============ DASHBOARD ============ */
+function dashboardHTML(){
+  const filtered = EMPLOYEES.filter(e=> (!filterDivisi || e.divisi===filterDivisi) && (!filterDept || e.dept===filterDept));
+  const assessed = filtered.filter(e=>e.competency!==null);
+  const pending = filtered.filter(e=>e.competency===null);
+
+  const tiersPerf = ["low","mid","high"];
+  const tiersComp = ["high","mid","low"];
+
+  let gridCells = "";
+  tiersComp.forEach(ct=>{
+    tiersPerf.forEach(pt=>{
+      const info = BOX_INFO[pt+"-"+ct];
+      const members = assessed.filter(e=> tier(e.performance)===pt && tier(e.competency)===ct);
+      gridCells += `
+        <div class="box" style="--box-tint:${info.tint};--box-color:${info.color}">
+          <div class="box-label"><span>${info.name}</span><span class="n">${members.length}</span></div>
+          <div class="box-chips">
+            ${members.map(m=>`<div class="chip" style="background:${info.color}" data-id="${m.id}" title="${m.name}">${initials(m.name)}</div>`).join("")}
+          </div>
+        </div>`;
+    });
+  });
+
+  const totalAssessed = assessed.length;
+  const breakdownHTML = BOX_ORDER.map(k=>{
+    const info = BOX_INFO[k];
+    const count = assessed.filter(e=> boxKey(e.performance,e.competency)===k).length;
+    const pct = totalAssessed ? (count/totalAssessed*100) : 0;
+    return `
+      <div class="breakdown-row">
+        <div class="sw" style="background:${info.color}"></div>
+        <div class="name">${info.name}</div>
+        <div class="n">${count}</div>
+        <div class="pct">${pct.toFixed(0)}%</div>
+      </div>
+      <div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:${info.color}"></div></div>
+    `;
+  }).join("");
+
+  return `
+    <div class="pagehead">
+      <div><span class="eyebrow">OD / People &amp; Culture</span><h1>HAV Map Dashboard</h1>
+      <p>Peta performance × kompetensi seluruh karyawan. Klik lingkaran untuk detail.</p></div>
+    </div>
+    <div class="filters">
+      <select id="divisi-filter">
+        <option value="">Semua Divisi</option>
+        ${DIVISIONS.map(d=>`<option value="${d}" ${filterDivisi===d?"selected":""}>${d}</option>`).join("")}
+      </select>
+      <select id="dept-filter">
+        <option value="">Semua Departemen</option>
+        ${deptsForDivisi(filterDivisi).map(d=>`<option value="${d}" ${filterDept===d?"selected":""}>${d}</option>`).join("")}
+      </select>
+      <span class="count">${assessed.length} sudah dinilai · ${pending.length} belum dinilai · ${filtered.length} total</span>
+    </div>
+    <div class="grid-wrap">
+      <div>
+        <div style="display:grid;grid-template-columns:20px 1fr;gap:8px;">
+          <div class="axis-y">Competency ↑</div>
+          <div class="hav-grid">${gridCells}</div>
+        </div>
+        <div style="display:grid;grid-template-columns:20px 1fr;gap:8px;">
+          <div></div><div class="axis-x">Performance →</div>
+        </div>
+      </div>
+      <div class="side-card">
+        <h3>Breakdown per Kategori</h3>
+        <p class="hint">% dihitung dari ${totalAssessed} karyawan yang sudah dinilai (bukan total populasi).</p>
+        ${breakdownHTML}
+      </div>
+    </div>
+  `;
+}
+function bindDashboard(){
+  const dvf = document.getElementById("divisi-filter");
+  if(dvf) dvf.onchange = (e)=>{
+    filterDivisi = e.target.value;
+    if(filterDept && !deptsForDivisi(filterDivisi).includes(filterDept)) filterDept = "";
+    render();
+  };
+  const df = document.getElementById("dept-filter");
+  if(df) df.onchange = (e)=>{ filterDept = e.target.value; render(); };
+  document.querySelectorAll(".chip").forEach(c=>{ c.onclick = ()=> openDrawer(c.dataset.id); });
+}
+
+/* ============ DETAIL DRAWER (quick view from grid) ============ */
+function openDrawer(id){
+  const e = EMPLOYEES.find(x=>x.id===id);
+  if(!e) return;
+  const overlay = document.getElementById("overlay");
+  const drawer = document.getElementById("drawer");
+  let bannerHTML;
+  if(e.competency===null){
+    bannerHTML = `<div class="pending-banner">Belum ada data kompetensi. Karyawan ini belum tampil di grid HAV Map sampai atasannya mengisi form assessment.</div>`;
+  }else{
+    const info = BOX_INFO[boxKey(e.performance, e.competency)];
+    bannerHTML = `<div class="box-banner"><span class="eyebrow">Posisi HAV Box</span><h4>${info.name}</h4><p>${info.desc}</p></div>`;
+  }
+  drawer.innerHTML = `
+    <div class="drawer-head">
+      <button class="drawer-close" id="drawer-close">&#10005;</button>
+      <div class="drawer-avatar">${initials(e.name)}</div>
+      <h2>${e.name}</h2>
+      <div class="sub">${e.position} · ${e.dept}</div>
+    </div>
+    <div class="drawer-body">
+      <div class="dstat"><span class="lbl">Atasan Langsung</span><span class="val">${e.supervisorId ? supervisorName(e.supervisorId) : "—"}</span></div>
+      <div class="dstat"><span class="lbl">Masa Kerja</span><span class="val">${e.tenureYears} tahun</span></div>
+      <div class="dstat"><span class="lbl">Performance Score</span><span class="val">${e.performance} / 5 · ${tierLabel(tier(e.performance))}</span></div>
+      <div class="dstat"><span class="lbl">Competency Score</span><span class="val">${e.competency!==null ? e.competency+" / 5 · "+tierLabel(tier(e.competency)) : "Belum dinilai"}</span></div>
+      <div class="dstat"><span class="lbl">Potensi (IQ)</span><span class="val">${e.iq}</span></div>
+      ${e.assessedBy ? `<div class="dstat"><span class="lbl">Dinilai oleh</span><span class="val">${e.assessedBy}<br><span style="font-weight:400;color:var(--ink-soft);font-size:10.5px;">${e.assessedAt}</span></span></div>` : ""}
+      ${bannerHTML}
+      <button class="btn btn-primary btn-block" style="margin-top:16px;" onclick="goToBreakdown('${e.id}')">Lihat Breakdown Lengkap →</button>
+    </div>`;
+  overlay.classList.add("show"); drawer.classList.add("show");
+  document.getElementById("drawer-close").onclick = closeDrawer;
+  overlay.onclick = closeDrawer;
+}
+function closeDrawer(){ document.getElementById("overlay").classList.remove("show"); document.getElementById("drawer").classList.remove("show"); }
+function goToBreakdown(id){
+  closeDrawer();
+  bdPrimary = id;
+  currentView = "breakdown";
+  document.querySelectorAll(".navitem").forEach(x=>x.classList.remove("active"));
+  document.querySelector('.navitem[data-view="breakdown"]').classList.add("active");
+  render();
+}
+
+/* ============ BREAKDOWN PAGE ============ */
+function profileCardHTML(e, win){
+  win = win || {};
+  if(!e) return `<div class="empty-select">Pilih karyawan untuk melihat detail.</div>`;
+  const info = e.competency!==null ? BOX_INFO[boxKey(e.performance, e.competency)] : null;
+
+  let strengthHTML, aodHTML;
+  if(e.competencyDetail){
+    const entries = COMPETENCY_QUESTIONS.map(q=>({title:q.title, score:e.competencyDetail[q.key]}));
+    const sorted = [...entries].sort((a,b)=>b.score-a.score);
+    const strengths = sorted.slice(0,2);
+    const aod = [...entries].sort((a,b)=>a.score-b.score).slice(0,2);
+    strengthHTML = strengths.map(s=>`<div class="tag-row pos"><span>${s.title}</span><b>${s.score}/5</b></div>`).join("");
+    aodHTML = aod.map(s=>`<div class="tag-row neg"><span>${s.title}</span><b>${s.score}/5</b></div>`).join("");
+  }else{
+    strengthHTML = aodHTML = `<div class="tag-row" style="color:var(--ink-soft);">Belum ada data assessment</div>`;
+  }
+
+  function statBox(label, val, key){
+    const isWin = win[key];
+    return `<div class="stat-box ${isWin?'win':''}"><div class="lbl">${label}</div><div class="val">${val}${isWin?'<span class="win-tick">▲</span>':''}</div></div>`;
+  }
+
+  return `
+    <div class="profile-card">
+      <div class="profile-top">
+        <div class="profile-avatar">${initials(e.name)}</div>
+        <div><div class="profile-name">${e.name}</div><div class="profile-sub">${e.position} · ${e.dept}</div></div>
+      </div>
+      <div class="stat-grid">
+        ${statBox("Performance", e.performance+" / 5", "performance")}
+        ${statBox("Competency", e.competency!==null ? e.competency+" / 5" : "—", "competency")}
+        ${statBox("Masa Kerja", e.tenureYears+" thn", "tenureYears")}
+        ${statBox("Potensi (IQ)", e.iq, "iq")}
+      </div>
+      ${info ? `<div class="box-banner" style="margin-top:0;margin-bottom:16px;"><span class="eyebrow">HAV Box</span><h4>${info.name}</h4><p>${info.desc}</p></div>` : `<div class="pending-banner" style="margin-top:0;margin-bottom:16px;">Belum dinilai kompetensinya.</div>`}
+      <div class="tag-list"><h5>Strength Points</h5>${strengthHTML}</div>
+      <div class="tag-list"><h5>Area of Development</h5>${aodHTML}</div>
+    </div>
+  `;
+}
+function computeWinners(a, b){
+  if(!a || !b) return {a:{}, b:{}};
+  const keys = ["performance","competency","tenureYears","iq"];
+  let wa={}, wb={};
+  keys.forEach(k=>{
+    const av=a[k], bv=b[k];
+    if(av==null || bv==null) return;
+    if(av>bv) wa[k]=true;
+    else if(bv>av) wb[k]=true;
+  });
+  return {a:wa, b:wb};
+}
+function breakdownHTML(){
+  const scoped = EMPLOYEES.filter(e=> (!filterDivisi || e.divisi===filterDivisi) && (!filterDept || e.dept===filterDept));
+  const options = scoped.map(e=>`<option value="${e.id}">${e.name} — ${e.dept}</option>`).join("");
+  const primary = EMPLOYEES.find(e=>e.id===bdPrimary);
+  const compare = EMPLOYEES.find(e=>e.id===bdCompare);
+  const winners = computeWinners(primary, compare);
+  return `
+    <div class="pagehead">
+      <div><span class="eyebrow">OD / People &amp; Culture</span><h1>Breakdown Karyawan</h1>
+      <p>Detail lengkap per karyawan, termasuk strength point dan area of development.</p></div>
+    </div>
+    <div class="filters">
+      <select id="divisi-filter-bd">
+        <option value="">Semua Divisi</option>
+        ${DIVISIONS.map(d=>`<option value="${d}" ${filterDivisi===d?"selected":""}>${d}</option>`).join("")}
+      </select>
+      <select id="dept-filter-bd">
+        <option value="">Semua Departemen</option>
+        ${deptsForDivisi(filterDivisi).map(d=>`<option value="${d}" ${filterDept===d?"selected":""}>${d}</option>`).join("")}
+      </select>
+      <span class="count">${scoped.length} karyawan pada filter ini</span>
+    </div>
+    <div class="bd-picker">
+      <div class="field">
+        <label>Pilih Karyawan (Utama)</label>
+        <select id="bd-primary"><option value="">— Pilih karyawan —</option>${options}</select>
+      </div>
+      <div class="field">
+        <label>Bandingkan dengan (opsional)</label>
+        <select id="bd-compare"><option value="">— Tidak dibandingkan —</option>${options}</select>
+      </div>
+    </div>
+    <div class="bd-compare ${bdCompare ? '' : 'single'}">
+      ${profileCardHTML(primary, winners.a)}
+      ${bdCompare ? profileCardHTML(compare, winners.b) : ""}
+    </div>
+  `;
+}
+function bindBreakdown(){
+  const dvf = document.getElementById("divisi-filter-bd");
+  if(dvf) dvf.onchange = e=>{
+    filterDivisi = e.target.value;
+    if(filterDept && !deptsForDivisi(filterDivisi).includes(filterDept)) filterDept = "";
+    render();
+  };
+  const df = document.getElementById("dept-filter-bd");
+  if(df) df.onchange = e=>{ filterDept = e.target.value; render(); };
+  const p = document.getElementById("bd-primary");
+  if(p){ p.value = bdPrimary; p.onchange = e=>{ bdPrimary = e.target.value; render(); }; }
+  const c = document.getElementById("bd-compare");
+  if(c){ c.value = bdCompare; c.onchange = e=>{ bdCompare = e.target.value; render(); }; }
+}
+
+/* ============ LOG ============ */
+function logHTML(){
+  const scoped = EMPLOYEES.filter(e=> (!filterDivisi || e.divisi===filterDivisi) && (!filterDept || e.dept===filterDept));
+  const pending = scoped.filter(e=>e.competency===null);
+  const pendingHTML = pending.length ? pending.map(e=>`
+    <div class="pending-item">
+      <div class="avatar-sm">${initials(e.name)}</div>
+      <div class="meta"><div class="n">${e.name}</div><div class="d">${e.dept} · ${e.position} · atasan: ${supervisorName(e.supervisorId)}</div></div>
+    </div>`).join("") : `<p class="hint" style="margin:0;">Semua karyawan pada filter ini sudah dinilai.</p>`;
+
+  return `
+    <div class="pagehead"><div><span class="eyebrow">Keamanan &amp; Transparansi</span><h1>Log Aktivitas Assessment</h1>
+    <p>Karyawan yang belum dinilai, dan audit trail siapa mengisi assessment untuk siapa.</p></div></div>
+    <div class="filters">
+      <select id="divisi-filter-log">
+        <option value="">Semua Divisi</option>
+        ${DIVISIONS.map(d=>`<option value="${d}" ${filterDivisi===d?"selected":""}>${d}</option>`).join("")}
+      </select>
+      <select id="dept-filter-log">
+        <option value="">Semua Departemen</option>
+        ${deptsForDivisi(filterDivisi).map(d=>`<option value="${d}" ${filterDept===d?"selected":""}>${d}</option>`).join("")}
+      </select>
+      <span class="count">${pending.length} belum dinilai · ${scoped.length} total pada filter ini</span>
+    </div>
+    <div class="grid-wrap" style="grid-template-columns:1fr 300px;">
+      <div class="side-card" id="log-table"><p class="hint" style="margin:0;">Memuat log...</p></div>
+      <div class="side-card">
+        <h3>Belum Dinilai (${pending.length})</h3>
+        <p class="hint">Kompetensi karyawan ini belum diisi atasan.</p>
+        ${pendingHTML}
+      </div>
+    </div>
+  `;
+}
+function bindLog(){
+  const dvf = document.getElementById("divisi-filter-log");
+  if(dvf) dvf.onchange = e=>{
+    filterDivisi = e.target.value;
+    if(filterDept && !deptsForDivisi(filterDivisi).includes(filterDept)) filterDept = "";
+    render();
+  };
+  const df = document.getElementById("dept-filter-log");
+  if(df) df.onchange = e=>{ filterDept = e.target.value; render(); };
+}
+async function loadLog(){
+  const log = await getLog();
+  const el = document.getElementById("log-table");
+  if(!el) return;
+  const scopedNames = new Set(EMPLOYEES.filter(e=> (!filterDivisi || e.divisi===filterDivisi) && (!filterDept || e.dept===filterDept)).map(e=>e.name));
+  const filteredLog = log.filter(l=> scopedNames.has(l.employee));
+  if(!filteredLog.length){ el.innerHTML = `<div class="empty-state">Belum ada aktivitas assessment yang tercatat pada filter ini.</div>`; return; }
+  el.innerHTML = `
+    <table>
+      <thead><tr><th>Waktu</th><th>Atasan Penilai</th><th>Karyawan Dinilai</th><th>Skor</th></tr></thead>
+      <tbody>${filteredLog.map(l=>`<tr><td>${l.time}</td><td>${l.supervisor}</td><td>${l.employee}</td><td><span class="badge badge-ok">${l.score} / 5</span></td></tr>`).join("")}</tbody>
+    </table>`;
+}
+
+/* ============ NAV ============ */
+function bindGlobal(){
+  document.querySelectorAll(".navitem").forEach(n=>{
+    n.onclick = ()=>{
+      currentView = n.dataset.view;
+      document.querySelectorAll(".navitem").forEach(x=>x.classList.remove("active"));
+      n.classList.add("active");
+      closeDrawer();
+      render();
+    };
+  });
+}
+initData();
+</script>
+</body>
+</html>

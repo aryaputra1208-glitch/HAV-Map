@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>Form Assessment Kompetensi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --accent:#8C1D53;
+    --accent-soft:#F4E7EE;
+    --ink:#1F2226;
+    --ink-soft:#5B5458;
+    --line:#E3DEE0;
+    --paper:#FAF8F8;
+    --card:#FFFFFF;
+    --ok:#2F6F4F;
+    --radius:10px;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:'Poppins',system-ui,sans-serif;background:var(--paper);color:var(--ink);-webkit-font-smoothing:antialiased;}
+  .wrap{max-width:640px;margin:0 auto;padding:40px 20px 60px;}
+  .head{text-align:center;margin-bottom:26px;}
+  .head .dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--accent);margin-right:6px;}
+  .head .brand{font-size:12px;font-weight:700;letter-spacing:.06em;color:var(--ink-soft);text-transform:uppercase;}
+  .head h1{font-size:19px;margin:8px 0 4px;font-weight:700;}
+  .head p{margin:0;font-size:12.5px;color:var(--ink-soft);}
+
+  .form-card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:28px;}
+  .stepper{display:flex;gap:6px;margin-bottom:22px;}
+  .stepdot{flex:1;height:4px;border-radius:2px;background:var(--line);}
+  .stepdot.done{background:var(--accent);}
+  .field{margin-bottom:18px;}
+  .field label{display:block;font-size:12.5px;font-weight:600;margin-bottom:7px;}
+  .field select, .field textarea{width:100%;padding:11px 12px;border:1.5px solid var(--line);border-radius:9px;font-family:inherit;font-size:13px;}
+  .field textarea{resize:vertical;min-height:70px;}
+  .q-card{border:1.5px solid var(--line);border-radius:10px;padding:16px;margin-bottom:12px;}
+  .q-card .qtitle{font-size:13px;font-weight:600;margin-bottom:3px;}
+  .q-card .qdesc{font-size:11px;color:var(--ink-soft);margin-bottom:12px;}
+  .scale{display:flex;gap:6px;}
+  .scale button{flex:1;padding:10px 0;border-radius:8px;border:1.5px solid var(--line);background:#fff;cursor:pointer;font-family:inherit;font-weight:700;font-size:13px;color:var(--ink-soft);transition:.12s;}
+  .scale button.sel{background:var(--accent);border-color:var(--accent);color:#fff;}
+  .scale-labels{display:flex;justify-content:space-between;font-size:9.5px;color:var(--ink-soft);margin-top:5px;padding:0 2px;}
+  .form-actions{display:flex;justify-content:space-between;margin-top:22px;}
+  .btn{border:none;border-radius:8px;padding:10px 16px;font-family:inherit;font-weight:600;font-size:12.5px;cursor:pointer;transition:.15s;}
+  .btn-primary{background:var(--ink);color:#fff;}
+  .btn-primary:hover{background:var(--accent);}
+  .btn-ghost{background:transparent;color:var(--ink-soft);border:1.5px solid var(--line);}
+  .summary-row{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px dashed var(--line);font-size:12.5px;}
+  .success{text-align:center;padding:36px 10px;}
+  .success .ico{width:52px;height:52px;border-radius:50%;background:#E7F0EA;color:var(--ok);display:flex;align-items:center;justify-content:center;margin:0 auto 14px;font-size:22px;}
+  .note{margin-top:16px;font-size:10.5px;color:#999;text-align:center;line-height:1.5;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="head">
+    <div><span class="dot"></span><span class="brand">HAV MAP</span></div>
+    <h1>Form Assessment Kompetensi</h1>
+    <p>Diisi oleh atasan langsung. Tidak perlu login — pilih nama Anda, lalu nilai bawahan langsung Anda.</p>
+  </div>
+  <div class="form-card" id="form-card"></div>
+  <p class="note">Hasil penilaian akan otomatis muncul di HAV Map Dashboard tim OD.</p>
+</div>
+
+<script>
+/* ============ MOCK DATA (harus konsisten dengan hav-map-dashboard.html) ============ */
+const SUPERVISORS = [
+  {id:"S1", name:"Dimas Prakoso", dept:"Operations"},
+  {id:"S2", name:"Rina Wulandari", dept:"Culture"},
+  {id:"S3", name:"Yusuf Hakim", dept:"HR"},
+  {id:"S4", name:"Melati Anggraini", dept:"Finance"},
+  {id:"S5", name:"Bagas Setiawan", dept:"IT"},
+];
+const NAMES = ["Ahmad Fauzi","Siti Nurhaliza","Bayu Segara","Putri Ramadhani","Reza Pratama","Ayu Lestari",
+  "Fajar Nugraha","Dewi Kartika","Andika Wibowo","Nia Kurnia","Rizky Aditya","Wulan Sari",
+  "Doni Saputra","Intan Permata","Agung Nugroho","Sari Indah","Teguh Wibisono","Lina Marlina",
+  "Hendra Gunawan","Fitri Handayani","Eko Prasetyo","Vina Anastasia","Yoga Pradana","Ratna Sari"];
+
+function randDetail(){
+  let d = {};
+  COMPETENCY_QUESTIONS.forEach(q=> d[q.key] = Math.round(1+Math.random()*4));
+  return d;
+}
+function avgDetail(d){
+  const vals = Object.values(d);
+  return +(vals.reduce((a,b)=>a+b,0)/vals.length).toFixed(1);
+}
+function seedEmployees(){
+  let out = [...SUPERVISORS.map(s=>({
+    id:s.id, name:s.name, dept:s.dept, position:"Supervisor/Manager", supervisorId:null,
+    tenureYears: +(Math.random()*6+2).toFixed(1), iq: Math.round(100+Math.random()*25),
+    performance: +(2.8+Math.random()*2.2).toFixed(1),
+    competency: null, competencyDetail:null, assessedBy:null, assessedAt:null
+  }))];
+  NAMES.forEach((n,i)=>{
+    const sup = SUPERVISORS[i % SUPERVISORS.length];
+    const hasScore = Math.random() < 0.55;
+    const detail = hasScore ? randDetail() : null;
+    out.push({
+      id:"E"+(i+1), name:n, dept:sup.dept, position:["Staff","Senior Staff","Officer","Coordinator"][i%4],
+      supervisorId:sup.id, tenureYears: +(Math.random()*7+0.3).toFixed(1), iq: Math.round(90+Math.random()*35),
+      performance: +(1.5+Math.random()*3.5).toFixed(1),
+      competency: detail ? avgDetail(detail) : null,
+      competencyDetail: detail,
+      assessedBy: hasScore ? sup.name : null, assessedAt: hasScore ? "-" : null
+    });
+  });
+  return out;
+}
+
+const COMPETENCY_QUESTIONS = [
+  {key:"leadership", title:"Kepemimpinan", desc:"Kemampuan mengarahkan, memotivasi, dan mengambil keputusan dalam tim."},
+  {key:"problem", title:"Pemecahan Masalah", desc:"Kemampuan menganalisis situasi dan menemukan solusi yang tepat."},
+  {key:"communication", title:"Komunikasi", desc:"Kejelasan menyampaikan ide dan mendengarkan secara aktif."},
+  {key:"teamwork", title:"Kerja Sama Tim", desc:"Kontribusi positif dan kolaborasi dengan rekan kerja."},
+  {key:"adaptability", title:"Adaptabilitas", desc:"Kecepatan menyesuaikan diri terhadap perubahan dan tekanan kerja."},
+];
+/* NOTE: pertanyaan & bobot perhitungan di atas masih PLACEHOLDER — akan diganti begitu
+   Arya mengirim daftar pertanyaan assessment kompetensi dan cara perhitungan skor resmi. */
+
+const STORAGE_KEY_EMP = "hav-employees-v1";
+const STORAGE_KEY_LOG = "hav-assessment-log-v1";
+
+let EMPLOYEES = [];
+let formState = {step:1, supervisorId:"", employeeId:"", ratings:{}, note:""};
+
+async function initData(){
+  try{
+    const r = await window.storage.get(STORAGE_KEY_EMP, true);
+    EMPLOYEES = JSON.parse(r.value);
+  }catch(e){
+    EMPLOYEES = seedEmployees();
+    try{ await window.storage.set(STORAGE_KEY_EMP, JSON.stringify(EMPLOYEES), true); }catch(e2){}
+  }
+  render();
+}
+async function saveEmployees(){ try{ await window.storage.set(STORAGE_KEY_EMP, JSON.stringify(EMPLOYEES), true); }catch(e){} }
+async function getLog(){ try{ const r = await window.storage.get(STORAGE_KEY_LOG, true); return JSON.parse(r.value); }catch(e){ return []; } }
+async function appendLog(entry){
+  const log = await getLog();
+  log.unshift(entry);
+  try{ await window.storage.set(STORAGE_KEY_LOG, JSON.stringify(log), true); }catch(e){}
+}
+function supervisorName(id){ const s = SUPERVISORS.find(x=>x.id===id); return s ? s.name : "-"; }
+
+function render(){
+  const card = document.getElementById("form-card");
+
+  if(formState.step===4){
+    card.innerHTML = `
+      <div class="success">
+        <div class="ico">&#10003;</div>
+        <h2 style="margin:0 0 8px;font-size:16px;">Penilaian Terkirim</h2>
+        <p style="color:var(--ink-soft);font-size:13px;">Skor kompetensi sudah tersimpan dan akan muncul di HAV Map Dashboard.</p>
+        <button class="btn btn-primary" style="margin-top:18px;" id="form-reset">Isi Penilaian Lain</button>
+      </div>`;
+    document.getElementById("form-reset").onclick = ()=>{ formState = {step:1, supervisorId:"", employeeId:"", ratings:{}, note:""}; render(); };
+    return;
+  }
+
+  const supOptions = SUPERVISORS.map(s=>`<option value="${s.id}" ${formState.supervisorId===s.id?"selected":""}>${s.name} — ${s.dept}</option>`).join("");
+  const team = formState.supervisorId ? EMPLOYEES.filter(e=>e.supervisorId===formState.supervisorId) : [];
+  const empOptions = team.map(e=>`<option value="${e.id}" ${formState.employeeId===e.id?"selected":""}>${e.name}${e.competency!==null ? " (sudah pernah dinilai)":""}</option>`).join("");
+  const emp = EMPLOYEES.find(e=>e.id===formState.employeeId);
+
+  let stepHTML = "";
+  if(formState.step===1){
+    stepHTML = `
+      <div class="field">
+        <label>Nama Anda (atasan penilai)</label>
+        <select id="f-sup">
+          <option value="">— Pilih nama —</option>${supOptions}
+        </select>
+      </div>
+      <div class="field">
+        <label>Nilai kompetensi untuk bawahan</label>
+        <select id="f-emp" ${!formState.supervisorId ? "disabled":""}>
+          <option value="">${formState.supervisorId ? "— Pilih nama bawahan —" : "Pilih nama Anda dulu"}</option>${empOptions}
+        </select>
+      </div>`;
+  } else if(formState.step===2){
+    stepHTML = COMPETENCY_QUESTIONS.map(q=>`
+      <div class="q-card">
+        <div class="qtitle">${q.title}</div>
+        <div class="qdesc">${q.desc}</div>
+        <div class="scale">
+          ${[1,2,3,4,5].map(n=>`<button type="button" data-q="${q.key}" data-v="${n}" class="${formState.ratings[q.key]===n?'sel':''}">${n}</button>`).join("")}
+        </div>
+        <div class="scale-labels"><span>Sangat kurang</span><span>Sangat baik</span></div>
+      </div>`).join("") + `
+      <div class="field">
+        <label>Catatan tambahan (opsional)</label>
+        <textarea id="f-note" placeholder="Observasi, contoh perilaku, atau konteks lain...">${formState.note}</textarea>
+      </div>`;
+  } else if(formState.step===3){
+    const vals = Object.values(formState.ratings);
+    const avg = vals.length ? (vals.reduce((a,b)=>a+b,0)/vals.length).toFixed(1) : "-";
+    stepHTML = `
+      <p style="font-size:13px;color:var(--ink-soft);margin-bottom:16px;">Periksa kembali sebelum mengirim.</p>
+      <div class="summary-row"><span>Atasan Penilai</span><b>${supervisorName(formState.supervisorId)}</b></div>
+      <div class="summary-row"><span>Karyawan Dinilai</span><b>${emp ? emp.name : "-"}</b></div>
+      ${COMPETENCY_QUESTIONS.map(q=>`<div class="summary-row"><span>${q.title}</span><b>${formState.ratings[q.key] || "-"} / 5</b></div>`).join("")}
+      <div class="summary-row" style="border-bottom:none;font-size:14px;"><span><b>Skor Kompetensi (rata-rata)</b></span><b style="color:var(--accent)">${avg} / 5</b></div>
+      <p style="font-size:10.5px;color:#999;margin-top:6px;">*Cara perhitungan skor masih placeholder, menunggu formula resmi dari tim OD.</p>`;
+  }
+
+  card.innerHTML = `
+    <div class="stepper">${[1,2,3].map(n=>`<div class="stepdot ${formState.step>=n?'done':''}"></div>`).join("")}</div>
+    <div>${stepHTML}</div>
+    <div class="form-actions">
+      ${formState.step>1 ? `<button class="btn btn-ghost" id="f-back">← Kembali</button>` : `<span></span>`}
+      ${formState.step<3 ? `<button class="btn btn-primary" id="f-next">Lanjut →</button>` : `<button class="btn btn-primary" id="f-submit">Kirim Penilaian</button>`}
+    </div>`;
+
+  bindForm(emp);
+}
+
+function bindForm(emp){
+  const sup = document.getElementById("f-sup");
+  if(sup) sup.onchange = e=>{ formState.supervisorId = e.target.value; formState.employeeId=""; render(); };
+  const empSel = document.getElementById("f-emp");
+  if(empSel) empSel.onchange = e=>{ formState.employeeId = e.target.value; };
+
+  document.querySelectorAll(".scale button").forEach(b=>{
+    b.onclick = ()=>{ formState.ratings[b.dataset.q] = parseInt(b.dataset.v); render(); };
+  });
+  const note = document.getElementById("f-note");
+  if(note) note.oninput = e=>{ formState.note = e.target.value; };
+
+  const back = document.getElementById("f-back");
+  if(back) back.onclick = ()=>{ formState.step--; render(); };
+
+  const next = document.getElementById("f-next");
+  if(next) next.onclick = ()=>{
+    if(formState.step===1 && (!formState.supervisorId || !formState.employeeId)){
+      alert("Pilih nama Anda dan nama bawahan terlebih dahulu."); return;
+    }
+    if(formState.step===2 && Object.keys(formState.ratings).length < COMPETENCY_QUESTIONS.length){
+      alert("Lengkapi semua penilaian kompetensi terlebih dahulu."); return;
+    }
+    formState.step++; render();
+  };
+
+  const submit = document.getElementById("f-submit");
+  if(submit) submit.onclick = async ()=>{
+    const vals = Object.values(formState.ratings);
+    const avg = +(vals.reduce((a,b)=>a+b,0)/vals.length).toFixed(1);
+    const target = EMPLOYEES.find(e=>e.id===formState.employeeId);
+    target.competency = avg;
+    target.competencyDetail = {...formState.ratings};
+    target.assessedBy = supervisorName(formState.supervisorId);
+    target.assessedAt = new Date().toLocaleDateString("id-ID",{day:"2-digit",month:"short",year:"numeric"});
+    await saveEmployees();
+    await appendLog({ time: new Date().toLocaleString("id-ID"), supervisor: target.assessedBy, employee: target.name, score: avg });
+    formState.step = 4;
+    render();
+  };
+}
+
+initData();
+</script>
+</body>
+</html>
