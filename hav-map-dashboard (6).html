@@ -17,13 +17,9 @@
     --accent-soft:#FCE4EE;
     --mint:#E1F5E9;
     --mint-ink:#1E8E4F;
-    --blue-tint:#E6F0FC;
-    --blue-ink:#2563AF;
-    --purple-tint:#F1E9FB;
-    --purple-ink:#7A3FC4;
-    --ok:#4C9A2A;
+    --ok:#2E9E4F;
     --warn:#D98F1E;
-    --risk:#E14B3F;
+    --risk:#C0392B;
     --radius:14px;
   }
   *{box-sizing:border-box;}
@@ -32,7 +28,6 @@
 
   .sidebar{width:212px;flex-shrink:0;background:#fff;padding:26px 16px;display:flex;flex-direction:column;gap:4px;border-right:1px solid var(--line);}
   .brand{font-weight:800;font-size:16px;letter-spacing:-.01em;display:flex;align-items:center;gap:7px;margin-bottom:2px;color:var(--accent);}
-  .brand .dot{width:7px;height:7px;border-radius:50%;background:var(--accent);}
   .brand-sub{font-size:10.5px;color:var(--ink-soft);margin:0 0 22px 15px;text-transform:uppercase;letter-spacing:.04em;}
   .navitem{padding:10px 12px;border-radius:9px;font-size:13px;font-weight:600;color:#8A8177;cursor:pointer;transition:.15s;}
   .navitem:hover{background:var(--card-2);color:var(--ink);}
@@ -65,16 +60,23 @@
   select{padding:8px 13px;border-radius:20px;border:1.5px solid var(--line);font-family:inherit;font-size:12px;background:var(--card);color:var(--ink);}
   .filters .count{margin-left:auto;font-size:11px;color:var(--ink-soft);background:var(--card);border:1px solid var(--line);padding:6px 12px;border-radius:20px;}
 
-  .grid-wrap{display:grid;grid-template-columns:1fr 280px;gap:20px;align-items:start;}
-  .hav-grid{display:grid;grid-template-columns:1fr 1fr 1fr;grid-template-rows:1fr 1fr 1fr;gap:10px;}
-  .axis-y{writing-mode:vertical-rl;transform:rotate(180deg);text-align:center;font-size:10.5px;font-weight:700;color:var(--ink-soft);letter-spacing:.05em;text-transform:uppercase;padding:8px 2px;}
-  .axis-x{text-align:center;font-size:10.5px;font-weight:700;color:var(--ink-soft);letter-spacing:.05em;text-transform:uppercase;padding-top:6px;}
-  .box{background:var(--box-tint,#fff);border:1px solid var(--line);border-radius:12px;min-height:158px;padding:12px;position:relative;display:flex;flex-direction:column;gap:7px;}
-  .box-label{font-size:11.5px;font-weight:700;display:flex;justify-content:space-between;align-items:center;color:var(--ink);}
-  .box-label .n{font-size:10px;font-weight:700;color:var(--box-color,var(--ink-soft));}
-  .box-chips{display:flex;flex-wrap:wrap;gap:6px;}
-  .chip{width:28px;height:28px;border-radius:50%;font-size:10px;font-weight:700;color:#fff;background:var(--ink-soft);display:flex;align-items:center;justify-content:center;cursor:pointer;border:2px solid #fff;box-shadow:0 0 0 1px rgba(0,0,0,.05);transition:.12s;flex-shrink:0;}
-  .chip:hover{transform:scale(1.12);}
+  /* HAV 5x5 grid */
+  .grid-wrap{display:grid;grid-template-columns:1fr 300px;gap:20px;align-items:start;}
+  .hav-outer{display:grid;grid-template-columns:26px 1fr;gap:8px;}
+  .hav-ylabel{writing-mode:vertical-rl;transform:rotate(180deg);text-align:center;font-size:10.5px;font-weight:700;color:var(--ink-soft);letter-spacing:.05em;text-transform:uppercase;}
+  .hav-body{display:grid;grid-template-columns:34px 1fr;gap:6px;}
+  .hav-rowlabels{display:grid;grid-template-rows:repeat(5,1fr);gap:6px;}
+  .hav-rowlabels div{display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--ink-soft);}
+  .hav-grid{display:grid;grid-template-columns:repeat(5,1fr);grid-template-rows:repeat(5,1fr);gap:6px;}
+  .hav-cell{border-radius:10px;padding:8px;display:flex;flex-direction:column;gap:5px;border:1px solid var(--line);min-height:82px;}
+  .hav-cell .zname{font-size:9.5px;font-weight:700;line-height:1.25;}
+  .hav-cell .zchips{display:flex;flex-wrap:wrap;gap:4px;}
+  .hchip{width:20px;height:20px;border-radius:50%;font-size:8px;font-weight:700;color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;border:1.5px solid #fff;flex-shrink:0;transition:.12s;}
+  .hchip:hover{transform:scale(1.18);}
+  .hav-collabels{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-top:6px;margin-left:40px;}
+  .hav-collabels div{text-align:center;font-size:10px;font-weight:700;color:var(--ink-soft);}
+  .hav-collabels .badge-sub{display:block;font-size:8.5px;font-weight:600;color:var(--ink-soft);opacity:.7;margin-top:1px;}
+  .hav-xlabel{text-align:center;font-size:10.5px;font-weight:700;color:var(--ink-soft);letter-spacing:.05em;text-transform:uppercase;margin-top:6px;margin-left:40px;}
 
   .side-card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:16px;margin-bottom:16px;}
   .side-card h3{font-size:12px;margin:0 0 3px;font-weight:700;letter-spacing:.01em;color:var(--ink);}
@@ -155,7 +157,7 @@
   <div class="sidebar">
     <div class="brand">HAV Map</div>
     <div class="brand-sub">OD Hub</div>
-    <div class="navitem active" data-view="dashboard">Dashboard<small>Performance × Competency</small></div>
+    <div class="navitem active" data-view="dashboard">Dashboard<small>Performance × Potency</small></div>
     <div class="navitem" data-view="breakdown">Breakdown<small>Detail &amp; compare karyawan</small></div>
     <div class="navitem" data-view="log">Log Aktivitas<small>Belum dinilai + audit trail</small></div>
     <div class="sidebar-foot">Prototype — data mock.<br>Form assessment ada di file terpisah (hav-map-form.html).</div>
@@ -180,6 +182,7 @@ const DEPT_TO_DIVISI = {
 };
 const DIVISIONS = ["Operations & Logistics","Culture & People","Corporate Services","Technology"];
 function deptsForDivisi(div){ return div ? DEPTS.filter(d=>DEPT_TO_DIVISI[d]===div) : DEPTS; }
+
 const SUPERVISORS = [
   {id:"S1", name:"Dimas Prakoso", dept:"Operations"},
   {id:"S2", name:"Rina Wulandari", dept:"Culture"},
@@ -200,6 +203,26 @@ const COMPETENCY_QUESTIONS = [
   {key:"adaptability", title:"Adaptabilitas"},
 ];
 
+/* Performance grade — Indonesian appraisal letters, worst to best */
+const GRADES = ["K","C","B","BS","IST"];
+const GRADE_LABEL = {K:"Kurang", C:"Cukup", B:"Baik", BS:"Baik Sekali", IST:"Istimewa"};
+const GRADE_RANK = {K:1, C:2, B:3, BS:4, IST:5};
+function randomGrade(){
+  const pool = ["K","C","C","B","B","B","BS","BS","IST"];
+  return pool[Math.floor(Math.random()*pool.length)];
+}
+
+/* Potency (x-axis) = competency score mapped to 5 tiers */
+const POTENCY_TIERS = ["Low","Middle Low","Middle High","High","Very High"];
+const POTENCY_BADGE = {2:"Bronze–Silver", 3:"Gold", 4:"Platinum"};
+function potencyTierIdx(score){
+  if(score>=4.2) return 4;
+  if(score>=3.4) return 3;
+  if(score>=2.6) return 2;
+  if(score>=1.8) return 1;
+  return 0;
+}
+
 function randDetail(){
   let d = {};
   COMPETENCY_QUESTIONS.forEach(q=> d[q.key] = Math.round(1+Math.random()*4));
@@ -214,7 +237,7 @@ function seedEmployees(){
   let out = [...SUPERVISORS.map(s=>({
     id:s.id, name:s.name, dept:s.dept, divisi:DEPT_TO_DIVISI[s.dept], position:"Supervisor/Manager", supervisorId:null,
     tenureYears: +(Math.random()*6+2).toFixed(1), iq: Math.round(100+Math.random()*25),
-    performance: +(2.8+Math.random()*2.2).toFixed(1),
+    performance: randomGrade(),
     competency:null, competencyDetail:null, assessedBy:null, assessedAt:null
   }))];
   NAMES.forEach((n,i)=>{
@@ -224,7 +247,7 @@ function seedEmployees(){
     out.push({
       id:"E"+(i+1), name:n, dept:sup.dept, divisi:DEPT_TO_DIVISI[sup.dept], position:["Staff","Senior Staff","Officer","Coordinator"][i%4],
       supervisorId:sup.id, tenureYears: +(Math.random()*7+0.3).toFixed(1), iq: Math.round(90+Math.random()*35),
-      performance: +(1.5+Math.random()*3.5).toFixed(1),
+      performance: randomGrade(),
       competency: detail ? avgDetail(detail) : null,
       competencyDetail: detail,
       assessedBy: hasScore ? sup.name : null, assessedAt: hasScore ? mockDate() : null
@@ -234,6 +257,42 @@ function seedEmployees(){
 }
 function mockDate(){ const d = new Date(2026, 6, Math.ceil(Math.random()*30)); return d.toLocaleDateString("id-ID",{day:"2-digit",month:"short",year:"numeric"}); }
 
+/* ============ HAV ZONES (5x5, 7 named zones as rectangular blocks) ============ */
+const ZONES = {
+  A:{name:"Excellent Career Person", color:"#E08A1E", tint:"#FCEBD6", desc:"Performance sangat baik dengan potensi yang masih terus berkembang. Kandidat kuat untuk jalur karir lanjutan."},
+  S:{name:"Star", color:"#2F6FCE", tint:"#E4EDFB", desc:"Performance dan potensi sama-sama sangat tinggi. Prioritas utama untuk suksesi kepemimpinan."},
+  H:{name:"High Potential", color:"#2E9E4F", tint:"#E1F3E5", desc:"Potensi tinggi dengan performance yang solid. Siapkan exposure dan tantangan baru."},
+  B:{name:"Career Person", color:"#E8C025", tint:"#FCF6D9", desc:"Performance baik dengan potensi di level menengah ke bawah. Tulang punggung organisasi saat ini."},
+  P:{name:"Potential", color:"#7DBE4A", tint:"#EBF5DF", desc:"Performance dan potensi di level menengah. Perlu pengembangan terarah untuk naik level."},
+  Q:{name:"Question Mark", color:"#9CA3AF", tint:"#F1F2F4", desc:"Ada ketidaksesuaian antara performance dan potensi. Perlu digali lebih lanjut — role fit, motivasi, atau hambatan eksekusi."},
+  D:{name:"Deadwood", color:"#C0392B", tint:"#FBE1DE", desc:"Performance dan potensi sama-sama rendah. Perlu rencana perbaikan (PIP) atau evaluasi kelanjutan."},
+};
+const ZONE_ORDER = ["S","A","H","B","P","Q","D"];
+/* r/c are 1-indexed grid lines: row1=IST(top)...row5=K(bottom), col1=Low(left)...col5=VeryHigh(right) */
+const BLOCKS = [
+  {zone:"A", r:[1,2], c:[1,2]},
+  {zone:"S", r:[1,1], c:[4,5]},
+  {zone:"S", r:[2,2], c:[5,5]},
+  {zone:"H", r:[1,2], c:[3,3]},
+  {zone:"H", r:[2,2], c:[4,4]},
+  {zone:"H", r:[3,3], c:[5,5]},
+  {zone:"B", r:[3,4], c:[1,2]},
+  {zone:"P", r:[3,4], c:[3,4]},
+  {zone:"Q", r:[4,4], c:[5,5]},
+  {zone:"Q", r:[5,5], c:[2,5]},
+  {zone:"D", r:[5,5], c:[1,1]},
+];
+function rowLine(grade){ return 5 - GRADES.indexOf(grade); } /* 1=IST...5=K */
+function colLine(score){ return potencyTierIdx(score) + 1; } /* 1=Low...5=VeryHigh */
+function blockFor(rowIdx, colIdx){
+  return BLOCKS.find(b=> rowIdx>=b.r[0] && rowIdx<=b.r[1] && colIdx>=b.c[0] && colIdx<=b.c[1]);
+}
+function zoneForEmployee(e){
+  if(e.competency===null) return null;
+  const b = blockFor(rowLine(e.performance), colLine(e.competency));
+  return b ? b.zone : null;
+}
+
 /* ============ STATE ============ */
 let EMPLOYEES = [];
 let GATE_OK = false;
@@ -242,8 +301,8 @@ let filterDept = "";
 let filterDivisi = "";
 let bdPrimary = "";
 let bdCompare = "";
-const STORAGE_KEY_EMP = "hav-employees-v1";
-const STORAGE_KEY_LOG = "hav-assessment-log-v1";
+const STORAGE_KEY_EMP = "hav-employees-v2";
+const STORAGE_KEY_LOG = "hav-assessment-log-v2";
 
 async function initData(){
   try{
@@ -259,21 +318,6 @@ async function getLog(){ try{ const r = await window.storage.get(STORAGE_KEY_LOG
 
 /* ============ HELPERS ============ */
 function initials(name){ return name.split(" ").map(w=>w[0]).slice(0,2).join("").toUpperCase(); }
-function tier(score){ if(score >= 3.68) return "high"; if(score >= 2.34) return "mid"; return "low"; }
-const BOX_INFO = {
-  "low-low":{name:"Risk", color:"#E14B3F", tint:"#FCEBE9", desc:"Performance dan kompetensi sama-sama rendah. Perlu rencana perbaikan (PIP) atau evaluasi kelanjutan."},
-  "mid-low":{name:"Average Performer", color:"#E14B3F", tint:"#FCEBE9", desc:"Performance cukup namun kompetensi masih rendah. Fokus coaching pada kompetensi."},
-  "high-low":{name:"Trusted Professional", color:"#D98F1E", tint:"#FCF3E0", desc:"Performance tinggi meski kompetensi belum optimal. Pastikan hasil tetap konsisten."},
-  "low-mid":{name:"Inconsistent Player", color:"#E14B3F", tint:"#FCEBE9", desc:"Kompetensi cukup baik tapi performance belum stabil. Cek hambatan eksekusi."},
-  "mid-mid":{name:"Core Employee", color:"#D98F1E", tint:"#FCF3E0", desc:"Performance dan kompetensi seimbang di tengah. Tulang punggung tim, jaga engagement-nya."},
-  "high-mid":{name:"High Performer", color:"#4C9A2A", tint:"#E9F5E1", desc:"Performance kuat, kompetensi berkembang baik. Kandidat kuat untuk tanggung jawab lebih besar."},
-  "low-high":{name:"Enigma", color:"#D98F1E", tint:"#FCF3E0", desc:"Kompetensi tinggi tapi performance belum terlihat. Cari akar masalah — motivasi, role fit, atau hambatan lain."},
-  "mid-high":{name:"Growth Employee", color:"#4C9A2A", tint:"#E9F5E1", desc:"Kompetensi tinggi, performance sedang. Berpotensi besar — beri exposure dan tantangan baru."},
-  "high-high":{name:"Future Leader", color:"#4C9A2A", tint:"#E9F5E1", desc:"Performance dan kompetensi tinggi. Prioritas utama untuk suksesi dan pengembangan kepemimpinan."},
-};
-const BOX_ORDER = ["high-high","high-mid","mid-high","mid-mid","high-low","low-high","mid-low","low-mid","low-low"];
-function boxKey(perf, comp){ return tier(perf)+"-"+tier(comp); }
-function tierLabel(t){ return t==="high"?"Tinggi":t==="mid"?"Sedang":"Rendah"; }
 function supervisorName(id){ const s = SUPERVISORS.find(x=>x.id===id); return s ? s.name : "-"; }
 
 /* ============ RENDER ROOT ============ */
@@ -295,7 +339,7 @@ function gateHTML(){
     <div class="gate">
       <div class="gate-icon">&#128274;</div>
       <h2>Akses Terbatas</h2>
-      <p>Dashboard ini berisi data performance, kompetensi, dan IQ karyawan yang bersifat rahasia. Hanya untuk tim OD / People &amp; Culture.</p>
+      <p>Dashboard ini berisi data performance, potensi, dan IQ karyawan yang bersifat rahasia. Hanya untuk tim OD / People &amp; Culture.</p>
       <div class="err" id="gate-err"></div>
       <input type="text" id="gate-code" placeholder="Masukkan kode akses" maxlength="20">
       <button class="btn btn-primary btn-block" id="gate-submit">Masuk Dashboard</button>
@@ -316,28 +360,26 @@ function dashboardHTML(){
   const assessed = filtered.filter(e=>e.competency!==null);
   const pending = filtered.filter(e=>e.competency===null);
 
-  const tiersPerf = ["low","mid","high"];
-  const tiersComp = ["high","mid","low"];
-
-  let gridCells = "";
-  tiersComp.forEach(ct=>{
-    tiersPerf.forEach(pt=>{
-      const info = BOX_INFO[pt+"-"+ct];
-      const members = assessed.filter(e=> tier(e.performance)===pt && tier(e.competency)===ct);
-      gridCells += `
-        <div class="box" style="--box-tint:${info.tint};--box-color:${info.color}">
-          <div class="box-label"><span>${info.name}</span><span class="n">${members.length}</span></div>
-          <div class="box-chips">
-            ${members.map(m=>`<div class="chip" style="background:${info.color}" data-id="${m.id}" title="${m.name}">${initials(m.name)}</div>`).join("")}
+  let cells = "";
+  for(let row=1; row<=5; row++){
+    for(let col=1; col<=5; col++){
+      const b = blockFor(row,col);
+      const info = ZONES[b.zone];
+      const members = assessed.filter(e=> rowLine(e.performance)===row && colLine(e.competency)===col);
+      cells += `
+        <div class="hav-cell" style="background:${info.tint};border-color:${info.color}44;grid-row:${row};grid-column:${col}">
+          <div class="zname" style="color:${info.color}">${info.name}</div>
+          <div class="zchips">
+            ${members.map(m=>`<div class="hchip" style="background:${info.color}" data-id="${m.id}" title="${m.name}">${initials(m.name)}</div>`).join("")}
           </div>
         </div>`;
-    });
-  });
+    }
+  }
 
   const totalAssessed = assessed.length;
-  const breakdownHTML = BOX_ORDER.map(k=>{
-    const info = BOX_INFO[k];
-    const count = assessed.filter(e=> boxKey(e.performance,e.competency)===k).length;
+  const breakdownHTML = ZONE_ORDER.map(code=>{
+    const info = ZONES[code];
+    const count = assessed.filter(e=> zoneForEmployee(e)===code).length;
     const pct = totalAssessed ? (count/totalAssessed*100) : 0;
     return `
       <div class="breakdown-row">
@@ -350,10 +392,13 @@ function dashboardHTML(){
     `;
   }).join("");
 
+  const colLabels = POTENCY_TIERS.map((t,i)=>`<div>${t}${POTENCY_BADGE[i+1] ? `<span class="badge-sub">${POTENCY_BADGE[i+1]}</span>` : ""}</div>`).join("");
+  const rowLabels = [...GRADES].reverse().map(g=>`<div>${g}</div>`).join("");
+
   return `
     <div class="pagehead">
       <div><span class="eyebrow">OD / People &amp; Culture</span><h1>HAV Map Dashboard</h1>
-      <p>Peta performance × kompetensi seluruh karyawan. Klik lingkaran untuk detail.</p></div>
+      <p>Peta performance × potensi seluruh karyawan. Klik lingkaran untuk detail.</p></div>
     </div>
     <div class="filters">
       <select id="divisi-filter">
@@ -368,12 +413,16 @@ function dashboardHTML(){
     </div>
     <div class="grid-wrap">
       <div>
-        <div style="display:grid;grid-template-columns:20px 1fr;gap:8px;">
-          <div class="axis-y">Competency ↑</div>
-          <div class="hav-grid">${gridCells}</div>
-        </div>
-        <div style="display:grid;grid-template-columns:20px 1fr;gap:8px;">
-          <div></div><div class="axis-x">Performance →</div>
+        <div class="hav-outer">
+          <div class="hav-ylabel">Performance ↑</div>
+          <div>
+            <div class="hav-body">
+              <div class="hav-rowlabels">${rowLabels}</div>
+              <div class="hav-grid">${cells}</div>
+            </div>
+            <div class="hav-collabels">${colLabels}</div>
+            <div class="hav-xlabel">Potency (Kompetensi) →</div>
+          </div>
         </div>
       </div>
       <div class="side-card">
@@ -393,10 +442,10 @@ function bindDashboard(){
   };
   const df = document.getElementById("dept-filter");
   if(df) df.onchange = (e)=>{ filterDept = e.target.value; render(); };
-  document.querySelectorAll(".chip").forEach(c=>{ c.onclick = ()=> openDrawer(c.dataset.id); });
+  document.querySelectorAll(".hchip").forEach(c=>{ c.onclick = ()=> openDrawer(c.dataset.id); });
 }
 
-/* ============ DETAIL DRAWER (quick view from grid) ============ */
+/* ============ DETAIL DRAWER ============ */
 function openDrawer(id){
   const e = EMPLOYEES.find(x=>x.id===id);
   if(!e) return;
@@ -406,7 +455,7 @@ function openDrawer(id){
   if(e.competency===null){
     bannerHTML = `<div class="pending-banner">Belum ada data kompetensi. Karyawan ini belum tampil di grid HAV Map sampai atasannya mengisi form assessment.</div>`;
   }else{
-    const info = BOX_INFO[boxKey(e.performance, e.competency)];
+    const info = ZONES[zoneForEmployee(e)];
     bannerHTML = `<div class="box-banner"><span class="eyebrow">Posisi HAV Box</span><h4>${info.name}</h4><p>${info.desc}</p></div>`;
   }
   drawer.innerHTML = `
@@ -419,8 +468,8 @@ function openDrawer(id){
     <div class="drawer-body">
       <div class="dstat"><span class="lbl">Atasan Langsung</span><span class="val">${e.supervisorId ? supervisorName(e.supervisorId) : "—"}</span></div>
       <div class="dstat"><span class="lbl">Masa Kerja</span><span class="val">${e.tenureYears} tahun</span></div>
-      <div class="dstat"><span class="lbl">Performance Score</span><span class="val">${e.performance} / 5 · ${tierLabel(tier(e.performance))}</span></div>
-      <div class="dstat"><span class="lbl">Competency Score</span><span class="val">${e.competency!==null ? e.competency+" / 5 · "+tierLabel(tier(e.competency)) : "Belum dinilai"}</span></div>
+      <div class="dstat"><span class="lbl">Performance</span><span class="val">${e.performance} · ${GRADE_LABEL[e.performance]}</span></div>
+      <div class="dstat"><span class="lbl">Potency (Kompetensi)</span><span class="val">${e.competency!==null ? e.competency+" / 5 · "+POTENCY_TIERS[potencyTierIdx(e.competency)] : "Belum dinilai"}</span></div>
       <div class="dstat"><span class="lbl">Potensi (IQ)</span><span class="val">${e.iq}</span></div>
       ${e.assessedBy ? `<div class="dstat"><span class="lbl">Dinilai oleh</span><span class="val">${e.assessedBy}<br><span style="font-weight:400;color:var(--ink-soft);font-size:10.5px;">${e.assessedAt}</span></span></div>` : ""}
       ${bannerHTML}
@@ -444,7 +493,7 @@ function goToBreakdown(id){
 function profileCardHTML(e, win){
   win = win || {};
   if(!e) return `<div class="empty-select">Pilih karyawan untuk melihat detail.</div>`;
-  const info = e.competency!==null ? BOX_INFO[boxKey(e.performance, e.competency)] : null;
+  const info = e.competency!==null ? ZONES[zoneForEmployee(e)] : null;
 
   let strengthHTML, aodHTML;
   if(e.competencyDetail){
@@ -470,8 +519,8 @@ function profileCardHTML(e, win){
         <div><div class="profile-name">${e.name}</div><div class="profile-sub">${e.position} · ${e.dept}</div></div>
       </div>
       <div class="stat-grid">
-        ${statBox("Performance", e.performance+" / 5", "performance")}
-        ${statBox("Competency", e.competency!==null ? e.competency+" / 5" : "—", "competency")}
+        ${statBox("Performance", e.performance, "performance")}
+        ${statBox("Potency (Kompetensi)", e.competency!==null ? e.competency+" / 5" : "—", "competency")}
         ${statBox("Masa Kerja", e.tenureYears+" thn", "tenureYears")}
         ${statBox("Potensi (IQ)", e.iq, "iq")}
       </div>
@@ -483,9 +532,10 @@ function profileCardHTML(e, win){
 }
 function computeWinners(a, b){
   if(!a || !b) return {a:{}, b:{}};
-  const keys = ["performance","competency","tenureYears","iq"];
   let wa={}, wb={};
-  keys.forEach(k=>{
+  const pa = GRADE_RANK[a.performance], pb = GRADE_RANK[b.performance];
+  if(pa>pb) wa.performance=true; else if(pb>pa) wb.performance=true;
+  ["competency","tenureYears","iq"].forEach(k=>{
     const av=a[k], bv=b[k];
     if(av==null || bv==null) return;
     if(av>bv) wa[k]=true;
